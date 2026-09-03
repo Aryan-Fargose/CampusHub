@@ -42,99 +42,98 @@ export const BottomControls: React.FC<BottomControlsProps> = ({
     <footer
       aria-label="Campus Wisdom & Controls"
       className={cn(
-        "relative z-20 w-full flex flex-col md:flex-row items-center justify-between gap-4 mt-6 select-none",
+        "relative z-20 w-full flex flex-col md:flex-row items-center justify-between gap-3 mt-4 select-none",
         className
       )}
     >
-      {/* ======================================================================= */}
-      {/* Left: 3 Glowing Circular Audio & Ambience Buttons                       */}
-      {/* ======================================================================= */}
-      <div className="flex items-center gap-3">
-        {/* Music Note Toggle Button */}
+      {/* Left: 3 Glowing Circular Audio & Ambience Buttons with Hover Scale & Glow */}
+      <div className="flex items-center gap-2.5">
         <button
           type="button"
           onClick={() => setIsPlayingMusic((prev) => !prev)}
           aria-label={isPlayingMusic ? "Pause music" : "Play music"}
           className={cn(
-            "flex h-11 w-11 items-center justify-center rounded-full transition-all cursor-pointer focus:outline-none",
-            "bg-[#040f17]/85 border shadow-[0_0_12px_rgba(0,0,0,0.8)]",
+            "flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 cursor-pointer focus:outline-none hover:scale-110 active:scale-95",
+            "shadow-[0_0_12px_rgba(0,0,0,0.8)]",
             isPlayingMusic
-              ? "border-[#2dd4bf] text-[#2dd4bf] shadow-[0_0_15px_rgba(45,212,191,0.4)]"
-              : "border-[#17303d] text-[#64748b] hover:text-[#94a3b8]"
+              ? "border border-[#48D1CC] text-[#48D1CC] shadow-[0_0_14px_rgba(72,209,204,0.45)]"
+              : "border border-[#17303d] text-[#64748b] hover:text-[#94a3b8]"
           )}
+          style={{ backgroundColor: "rgba(4, 15, 25, 0.88)" }}
         >
-          <Music className="h-4 w-4" />
+          <Music className={cn("h-3.5 w-3.5", isPlayingMusic && "animate-pulse")} />
         </button>
 
-        {/* Mute/Unmute Audio Button */}
         <button
           type="button"
           onClick={() => setIsMuted((prev) => !prev)}
           aria-label={isMuted ? "Unmute sound" : "Mute sound"}
           className={cn(
-            "flex h-11 w-11 items-center justify-center rounded-full transition-all cursor-pointer focus:outline-none",
-            "bg-[#040f17]/85 border border-[#17303d] text-[#64748b] hover:text-[#94a3b8] hover:border-[#2dd4bf]/40 shadow-[0_0_12px_rgba(0,0,0,0.8)]"
+            "flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 cursor-pointer focus:outline-none hover:scale-110 active:scale-95",
+            "border border-[#17303d] text-[#64748b] hover:text-[#D6D9D4] hover:border-[#48D1CC]/70 shadow-[0_0_12px_rgba(0,0,0,0.8)] hover:shadow-[0_0_14px_rgba(72,209,204,0.35)]"
           )}
+          style={{ backgroundColor: "rgba(4, 15, 25, 0.88)" }}
         >
-          {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          {isMuted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
         </button>
 
-        {/* Theme Sun Toggle Button */}
         <button
           type="button"
           onClick={cycleTheme}
           aria-label="Cycle chamber theme"
           className={cn(
-            "flex h-11 w-11 items-center justify-center rounded-full transition-all cursor-pointer focus:outline-none",
-            "bg-[#040f17]/85 border border-[#17303d] text-[#64748b] hover:text-amber-300 hover:border-amber-400/50 shadow-[0_0_12px_rgba(0,0,0,0.8)]"
+            "flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 cursor-pointer focus:outline-none hover:scale-110 active:scale-95",
+            "border border-[#17303d] text-[#64748b] hover:text-[#E7C56D] hover:border-[#E7C56D]/70 shadow-[0_0_12px_rgba(0,0,0,0.8)] hover:shadow-[0_0_14px_rgba(231,197,109,0.35)]"
           )}
+          style={{ backgroundColor: "rgba(4, 15, 25, 0.88)" }}
         >
-          <Sun className="h-4 w-4" />
+          <Sun className="h-3.5 w-3.5" />
         </button>
       </div>
 
-      {/* ======================================================================= */}
-      {/* Center: Ornate Gothic Plaque with Wisdom Quote & DJSCE Monogram        */}
-      {/* ======================================================================= */}
-      <div className="flex flex-col items-center justify-center max-w-xl text-center">
-        {/* Ornate Plaque Frame */}
-        <div className="relative px-8 py-3 rounded-lg bg-[#030811]/75 backdrop-blur-md border border-[#16333f]/60 shadow-[0_4px_24px_rgba(0,0,0,0.85)]">
+      {/* Center: Ornate Gothic Plaque with Wisdom Quote & DJSCE Monogram */}
+      <div className="flex flex-col items-center justify-center max-w-lg text-center">
+        <div
+          className="relative px-6 py-2 rounded-lg backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.8)] transition-all duration-300 hover:shadow-[0_0_20px_rgba(72,209,204,0.2)]"
+          style={{
+            backgroundColor: "rgba(4, 15, 25, 0.88)",
+            border: "1px solid rgba(70, 180, 195, 0.35)",
+          }}
+        >
           {/* Subtle Corner Brackets */}
-          <span className="absolute top-1.5 left-2 text-[10px] text-[#2dd4bf]/40">⌜</span>
-          <span className="absolute top-1.5 right-2 text-[10px] text-[#2dd4bf]/40">⌝</span>
-          <span className="absolute bottom-1.5 left-2 text-[10px] text-[#2dd4bf]/40">⌞</span>
-          <span className="absolute bottom-1.5 right-2 text-[10px] text-[#2dd4bf]/40">⌟</span>
+          <span className="absolute top-1 left-1.5 text-[9px] text-[#48D1CC]/40">⌜</span>
+          <span className="absolute top-1 right-1.5 text-[9px] text-[#48D1CC]/40">⌝</span>
+          <span className="absolute bottom-1 left-1.5 text-[9px] text-[#48D1CC]/40">⌞</span>
+          <span className="absolute bottom-1 right-1.5 text-[9px] text-[#48D1CC]/40">⌟</span>
 
-          <p className="font-cormorant italic text-sm sm:text-base text-[#dce7e3] leading-relaxed">
+          <p className="font-cormorant italic text-xs sm:text-sm text-[#D6D9D4] leading-relaxed transition-opacity duration-300">
             &ldquo;{currentQuote.text}&rdquo;
           </p>
         </div>
 
         {/* DJSCE Monogram with Filigree Line */}
-        <div className="flex items-center gap-2 mt-1.5 text-[#527983] text-[11px] font-serif tracking-[0.25em]">
-          <span className="h-[1px] w-6 bg-[#21434f]" />
+        <div className="flex items-center gap-2 mt-1 text-[#9BA9AF] text-[10px] font-serif tracking-[0.25em]">
+          <span className="h-[1px] w-5 bg-[#21434f]" />
           <span>✦ DJSCE ✦</span>
-          <span className="h-[1px] w-6 bg-[#21434f]" />
+          <span className="h-[1px] w-5 bg-[#21434f]" />
         </div>
       </div>
 
-      {/* ======================================================================= */}
-      {/* Right: Daily Quote Parchment Button                                    */}
-      {/* ======================================================================= */}
+      {/* Right: Daily Quote Button with Smooth Hover Lift & Quill Spin */}
       <div className="flex items-center">
         <button
           type="button"
           onClick={handleNextQuote}
           className={cn(
-            "group relative inline-flex items-center gap-2.5 rounded-lg px-5 py-2.5 cursor-pointer select-none transition-all duration-300",
+            "group relative inline-flex items-center gap-2 rounded-lg px-4 py-2 cursor-pointer select-none transition-all duration-300",
             "bg-gradient-to-r from-[#d9be85] via-[#e5cf9e] to-[#caa76a] text-[#1e1507]",
-            "border border-[#8f6d33] hover:border-[#fef08a] shadow-[0_4px_16px_rgba(0,0,0,0.8)] hover:shadow-[0_0_20px_rgba(217,190,133,0.5)]",
-            "font-cinzel text-xs font-bold tracking-wider hover:-translate-y-0.5 active:translate-y-0"
+            "border border-[#8f6d33] hover:border-[#fef08a] shadow-[0_4px_14px_rgba(0,0,0,0.8)] hover:shadow-[0_0_24px_rgba(231,197,109,0.55)]",
+            "font-cinzel text-[11px] font-bold tracking-wider hover:-translate-y-1 active:translate-y-0 active:scale-95"
           )}
         >
-          <BookOpen className="h-3.5 w-3.5 text-[#1e1507]" />
+          <BookOpen className="h-3 w-3 text-[#1e1507]" />
           <span>Daily Quote</span>
-          <span className="text-sm group-hover:rotate-12 transition-transform">🪶</span>
+          <span className="text-xs group-hover:rotate-180 transition-transform duration-500">🪶</span>
         </button>
       </div>
     </footer>

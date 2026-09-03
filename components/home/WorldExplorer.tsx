@@ -24,21 +24,21 @@ export const WorldExplorer: React.FC<WorldExplorerProps> = ({
         }
       }}
       className={cn(
-        "group relative flex items-center gap-3 cursor-pointer select-none focus:outline-none",
+        "group relative flex items-center gap-2.5 cursor-pointer select-none focus:outline-none transition-transform duration-300 hover:scale-105",
         className
       )}
     >
-      {/* Curved Glowing Green Arrow with Dashed Trail */}
+      {/* Curved Glowing Green Arrow with Animated Directional Bounce */}
       <svg
         viewBox="0 0 100 80"
-        className="w-16 h-12 text-[#34d399] filter drop-shadow-[0_0_8px_#34d399] group-hover:scale-110 transition-transform duration-300"
+        className="w-14 h-10 text-[#48D1CC] filter drop-shadow-[0_0_8px_rgba(72,209,204,0.75)] animate-[arrowPulse_3s_ease-in-out_infinite] group-hover:scale-110 transition-transform duration-300"
         fill="none"
       >
         {/* Dashed curved arc */}
         <path
           d="M10,70 Q40,65 75,25"
           stroke="currentColor"
-          strokeWidth="2.5"
+          strokeWidth="2.4"
           strokeDasharray="4,4"
           strokeLinecap="round"
         />
@@ -46,18 +46,24 @@ export const WorldExplorer: React.FC<WorldExplorerProps> = ({
         <path
           d="M60,20 L80,22 L78,42"
           stroke="currentColor"
-          strokeWidth="2.5"
+          strokeWidth="2.4"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
       </svg>
 
-      {/* Glowing Callout Text: "Explore your Campus World" */}
-      <div className="relative px-3 py-1.5 rounded-full border border-dashed border-[#2dd4bf]/40 bg-[#04151b]/40 backdrop-blur-sm group-hover:border-[#2dd4bf] group-hover:bg-[#062029]/60 transition-all duration-300 shadow-[0_0_15px_rgba(45,212,191,0.15)] group-hover:shadow-[0_0_25px_rgba(45,212,191,0.35)]">
-        <p className="font-cormorant italic text-sm sm:text-base text-[#e2e8f0] leading-tight text-center">
+      {/* Glowing Callout Badge: "Explore your Campus World" */}
+      <div
+        className="relative px-3.5 py-1.5 rounded-full backdrop-blur-sm transition-all duration-300 shadow-[0_0_15px_rgba(72,209,204,0.2)] group-hover:shadow-[0_0_25px_rgba(72,209,204,0.45)] group-hover:border-[#48D1CC]"
+        style={{
+          backgroundColor: "rgba(4, 15, 25, 0.85)",
+          border: "1px dashed rgba(70, 180, 195, 0.55)",
+        }}
+      >
+        <p className="font-cormorant italic text-xs sm:text-sm text-[#D6D9D4] leading-tight text-center">
           Explore your
         </p>
-        <p className="font-cinzel text-xs sm:text-sm font-bold text-[#5eead4] tracking-wider text-center drop-shadow-[0_0_8px_#2dd4bf]">
+        <p className="font-cinzel text-[11px] sm:text-xs font-bold text-[#48D1CC] tracking-wider text-center drop-shadow-[0_0_8px_rgba(72,209,204,0.6)]">
           Campus World
         </p>
       </div>

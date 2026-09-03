@@ -1,6 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Cinzel_Decorative, Cormorant_Garamond } from "next/font/google";
+import { MedievalSharp, Cinzel_Decorative, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
+
+const medievalSharp = MedievalSharp({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-medieval",
+  display: "swap",
+});
 
 const cinzelDecorative = Cinzel_Decorative({
   weight: ["400", "700", "900"],
@@ -46,9 +53,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark h-full ${cinzelDecorative.variable} ${cormorantGaramond.variable}`}
+      className={`dark h-full ${medievalSharp.variable} ${cinzelDecorative.variable} ${cormorantGaramond.variable}`}
     >
-      <body className="min-h-full flex flex-col bg-[#03060a] text-[#f1ede4] font-cormorant antialiased selection:bg-amber-500/30 selection:text-amber-200">
+      <body className="min-h-full flex flex-col bg-[#03060a] text-[#D6D9D4] font-cormorant antialiased selection:bg-amber-500/30 selection:text-amber-200">
         {children}
       </body>
     </html>
