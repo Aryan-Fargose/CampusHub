@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+:root {
+  --background: #060b13;
+  --foreground: #f1ede4;
+  --card-bg: rgba(8, 14, 22, 0.85);
+  --card-border: rgba(198, 155, 63, 0.2);
+  --gold-accent: #c69b3f;
+  --emerald-accent: #10b981;
+}
+
+@theme {
+  --color-arcane-bg: #060b13;
+  --color-arcane-card: #080e16;
+  --color-arcane-border: rgba(198, 155, 63, 0.2);
+  --color-arcane-gold: #c69b3f;
+  --color-arcane-gold-hover: #dbae4e;
+  --color-arcane-emerald: #10b981;
+  --color-arcane-parchment: #f1ede4;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "rlig" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Atmospheric float keyframe for subtle creatures and stars */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+/* Accessibility: Respect user reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
