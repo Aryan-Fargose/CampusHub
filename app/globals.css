@@ -1,39 +1,100 @@
 @import "tailwindcss";
 
 :root {
-  --background: #060b13;
+  --background: #03060a;
   --foreground: #f1ede4;
-  --card-bg: rgba(8, 14, 22, 0.85);
-  --card-border: rgba(198, 155, 63, 0.2);
+  --card-bg: rgba(6, 12, 20, 0.82);
+  --card-border: rgba(198, 155, 63, 0.3);
   --gold-accent: #c69b3f;
   --emerald-accent: #10b981;
 }
 
 @theme {
-  --color-arcane-bg: #060b13;
-  --color-arcane-card: #080e16;
-  --color-arcane-border: rgba(198, 155, 63, 0.2);
+  --color-arcane-bg: #03060a;
+  --color-arcane-card: #060d16;
+  --color-arcane-border: rgba(198, 155, 63, 0.3);
   --color-arcane-gold: #c69b3f;
   --color-arcane-gold-hover: #dbae4e;
   --color-arcane-emerald: #10b981;
   --color-arcane-parchment: #f1ede4;
+  --font-cinzel: var(--font-cinzel), serif;
+  --font-cormorant: var(--font-cormorant), serif;
+}
+
+.font-cinzel {
+  font-family: var(--font-cinzel), serif;
+}
+
+.font-cormorant {
+  font-family: var(--font-cormorant), serif;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-feature-settings: "rlig" 1, "calt" 1;
+  font-family: var(--font-cormorant), Georgia, serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Atmospheric float keyframe for subtle creatures and stars */
+/* Atmospheric float keyframe for flying owl/creatures */
 @keyframes float {
   0%, 100% {
     transform: translateY(0px) rotate(0deg);
   }
   50% {
-    transform: translateY(-8px) rotate(1deg);
+    transform: translateY(-8px) rotate(1.5deg);
+  }
+}
+
+/* Dramatic Visible Cinematic Drifting Fog - Layer 1 (Left to Right) */
+@keyframes fogDriftRight {
+  0% {
+    transform: translate3d(-30%, 0, 0);
+  }
+  50% {
+    transform: translate3d(5%, -12px, 0);
+  }
+  100% {
+    transform: translate3d(-30%, 0, 0);
+  }
+}
+
+/* Dramatic Visible Cinematic Drifting Fog - Layer 2 (Right to Left) */
+@keyframes fogDriftLeft {
+  0% {
+    transform: translate3d(25%, 0, 0);
+  }
+  50% {
+    transform: translate3d(-10%, 14px, 0);
+  }
+  100% {
+    transform: translate3d(25%, 0, 0);
+  }
+}
+
+/* Low Rolling Ground Mist */
+@keyframes groundMistDrift {
+  0% {
+    transform: translate3d(-15%, 0, 0) scaleY(1);
+  }
+  50% {
+    transform: translate3d(10%, -8px, 0) scaleY(1.1);
+  }
+  100% {
+    transform: translate3d(-15%, 0, 0) scaleY(1);
+  }
+}
+
+/* Gentle Wand / Lantern Flare Pulsing */
+@keyframes wandPulse {
+  0%, 100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
   }
 }
 

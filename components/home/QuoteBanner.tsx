@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { CampusQuote } from "@/types";
-import { RefreshCw } from "lucide-react";
+import { Sparkles, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface QuoteBannerProps {
@@ -14,59 +14,57 @@ export const QuoteBanner: React.FC<QuoteBannerProps> = ({
   quotes,
   className,
 }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isFading, setIsFading] = useState(false);
+  const [quoteIndex, setQuoteIndex] = useState(0);
+  const [isRotating, setIsRotating] = useState(false);
 
-  const currentQuote = quotes[currentIndex] || quotes[0];
+  const currentQuote = quotes[quoteIndex] || {
+    id: "default",
+    text: "Words are, in my not-so-humble opinion, our most inexhaustible source of magic.",
+    author: "Albus Dumbledore",
+  };
 
   const handleNextQuote = () => {
-    setIsFading(true);
+    setIsRotating(true);
     setTimeout(() => {
-      setCurrentIndex((prev) => (prev + 1) % quotes.length);
-      setIsFading(false);
+      setQuoteIndex((prev) => (prev + 1) % quotes.length);
+      setIsRotating(false);
     }, 200);
   };
 
   return (
     <div
+      tabIndex={0}
+      role="region"
+      aria-label="Daily Magical Wisdom"
       className={cn(
-        "relative flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl px-6 py-3.5 transition-all duration-300",
-        "bg-[#040810]/80 border border-amber-500/30 hover:border-amber-400/50 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.7)]",
+        "relative mx-auto flex items-center justify-between gap-4 rounded-2xl px-5 py-3.5 sm:px-6 sm:py-4 transition-all duration-300",
+        "bg-[#040812]/80 backdrop-blur-md border border-amber-500/25 shadow-[0_4px_24px_rgba(0,0,0,0.6)]",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400",
         className
       )}
     >
-      {/* Ornate Corner Pins */}
-      <span className="absolute top-2 left-2 text-[10px] text-amber-400/60 select-none">✦</span>
-      <span className="absolute top-2 right-2 text-[10px] text-amber-400/60 select-none">✦</span>
-      <span className="absolute bottom-2 left-2 text-[10px] text-amber-400/60 select-none">✦</span>
-      <span className="absolute bottom-2 right-2 text-[10px] text-amber-400/60 select-none">✦</span>
+      <div className="flex items-center gap-3.5 overflow-hidden">
+        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-amber-950/50 border border-amber-500/40 text-amber-400 shadow-sm">
+          <Sparkles className="h-4 w-4" />
+        </div>
 
-      {/* Quote Content */}
-      <div
-        className={cn(
-          "flex-1 text-center sm:text-left transition-opacity duration-200 px-2",
-          isFading ? "opacity-0" : "opacity-100"
-        )}
-      >
-        <p className="font-serif text-xs sm:text-sm italic text-amber-100/90 leading-relaxed">
-          &ldquo;{currentQuote.text}&rdquo;
-        </p>
-        <span className="block text-[11px] font-mono text-amber-400/70 mt-0.5">
-          &mdash; {currentQuote.author}
-          {currentQuote.source && (
-            <span className="text-slate-400"> &bull; {currentQuote.source}</span>
-          )}
-        </span>
+        <div className={cn("transition-opacity duration-200", isRotating ? "opacity-0" : "opacity-100")}>
+          <p className="font-cormorant italic text-sm sm:text-base text-amber-100/90 leading-snug">
+            &ldquo;{currentQuote.text}&rdquo;
+          </p>
+          <span className="text-[11px] font-cinzel text-amber-400/80 tracking-wider">
+            &mdash; {currentQuote.author}
+          </span>
+        </div>
       </div>
 
-      {/* Daily Quote Changer Button */}
       <button
         type="button"
+        aria-label="Show another quote"
         onClick={handleNextQuote}
-        className="group inline-flex items-center gap-2 rounded-xl px-4 py-2 bg-[#0a121e] hover:bg-[#121e30] border border-amber-500/30 hover:border-amber-400/60 text-xs font-serif text-amber-200 transition-all duration-200 cursor-pointer shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 select-none flex-shrink-0"
+        className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-900/60 border border-slate-700/60 text-slate-400 hover:text-amber-300 hover:border-amber-400/60 hover:bg-slate-800 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 cursor-pointer"
       >
-        <span>Daily Quote</span>
-        <RefreshCw className="h-3 w-3 text-amber-400 transition-transform duration-500 group-hover:rotate-180" />
+        <RefreshCw className={cn("h-3.5 w-3.5 transition-transform", isRotating ? "animate-spin" : "")} />
       </button>
     </div>
   );

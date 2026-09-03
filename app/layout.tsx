@@ -1,5 +1,20 @@
 import type { Metadata, Viewport } from "next";
+import { Cinzel_Decorative, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
+
+const cinzelDecorative = Cinzel_Decorative({
+  weight: ["400", "700", "900"],
+  subsets: ["latin"],
+  variable: "--font-cinzel",
+  display: "swap",
+});
+
+const cormorantGaramond = Cormorant_Garamond({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "CampusHub — Magical-Academia Student Companion",
@@ -29,8 +44,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark h-full">
-      <body className="min-h-full flex flex-col bg-[#060b13] text-[#f1ede4] antialiased selection:bg-amber-500/30 selection:text-amber-200">
+    <html
+      lang="en"
+      className={`dark h-full ${cinzelDecorative.variable} ${cormorantGaramond.variable}`}
+    >
+      <body className="min-h-full flex flex-col bg-[#03060a] text-[#f1ede4] font-cormorant antialiased selection:bg-amber-500/30 selection:text-amber-200">
         {children}
       </body>
     </html>

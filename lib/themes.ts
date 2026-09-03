@@ -58,3 +58,5 @@ export const ACADEMY_THEMES: Record<ThemeId, ThemeConfig> = {
 };
 
 export const DEFAULT_THEME: ThemeConfig = ACADEMY_THEMES.midnight;
+
+export const chamberThemes: ThemeConfig[] = Object.values(ACADEMY_THEMES);
