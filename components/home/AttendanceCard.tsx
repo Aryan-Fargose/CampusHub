@@ -3,17 +3,29 @@
 import React from "react";
 import Link from "next/link";
 import { AttendanceSummary } from "@/types";
+import { useAttendance } from "@/lib/useAttendance";
 import { cn } from "@/lib/utils";
 
 export interface AttendanceCardProps {
-  attendance: AttendanceSummary;
+  attendance?: AttendanceSummary;
   className?: string;
 }
 
 export const AttendanceCard: React.FC<AttendanceCardProps> = ({
-  attendance,
+  attendance: propAttendance,
   className,
 }) => {
+  const { overallStats } = useAttendance();
+
+  const attendance: AttendanceSummary = propAttendance || {
+    percentage: overallStats.percentage,
+    status: overallStats.status === "danger" ? "critical" : overallStats.status,
+    statusLabel: overallStats.status === "danger" ? "DANGER" : overallStats.status.toUpperCase(),
+    safeBunksCount: overallStats.safeBunks,
+    totalLectures: overallStats.total,
+    attendedLectures: overallStats.present,
+  };
+
   // Proportional 25% scale down: radius 39, stroke 6
   const radius = 39;
   const circumference = 2 * Math.PI * radius;

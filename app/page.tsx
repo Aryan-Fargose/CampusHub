@@ -12,18 +12,28 @@ import { BottomControls } from "@/components/home/BottomControls";
 
 import {
   mockCurrentUser,
-  mockAttendance,
   mockCanteenPick,
   mockOwlPost,
   mockCommonRoom,
   mockQuotes,
 } from "@/lib/mockData";
+import { useAttendance } from "@/lib/useAttendance";
 import { ThemeId } from "@/types";
 
 export default function HomePage() {
   const [currentUser] = useState(mockCurrentUser);
   const [currentThemeId, setCurrentThemeId] = useState<ThemeId>("midnight");
   const [exploreAlert, setExploreAlert] = useState(false);
+  const { overallStats } = useAttendance();
+
+  const dynamicAttendance = {
+    percentage: overallStats.percentage,
+    status: overallStats.status === "danger" ? ("critical" as const) : overallStats.status,
+    statusLabel: overallStats.status === "danger" ? "DANGER" : overallStats.status.toUpperCase(),
+    safeBunksCount: overallStats.safeBunks,
+    totalLectures: overallStats.total,
+    attendedLectures: overallStats.present,
+  };
 
   const handleExploreWorld = () => {
     setExploreAlert(true);
@@ -57,7 +67,7 @@ export default function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-center flex-1 my-auto">
           {/* Left Column: Attendance Overview & Canteen Pick (25% more compact) */}
           <div className="order-2 lg:order-1 lg:col-span-3 space-y-3.5 w-full max-w-[245px] mx-auto lg:mx-0">
-            <AttendanceCard attendance={mockAttendance} />
+            <AttendanceCard attendance={dynamicAttendance} />
             <CanteenCard canteenPick={mockCanteenPick} />
           </div>
 

@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useSyncExternalStore, useCallback } from "react";
+import { OverallAttendanceStats } from "@/types/attendance";
 import {
-  SubjectAttendance,
-  AttendanceRecord,
-  OverallAttendanceStats,
-} from "@/types/attendance";
-import {
-  loadStoredSubjects,
-  loadStoredRecords,
-  loadStoredGlobalTarget,
+  subscribeToAttendance,
+  getSubjectsSnapshot,
+  getServerSubjectsSnapshot,
+  getRecordsSnapshot,
+  getServerRecordsSnapshot,
+  getTargetSnapshot,
+  getServerTargetSnapshot,
   saveStoredGlobalTarget,
   calculateOverallStats,
   markLecturePresent,
@@ -19,45 +19,29 @@ import {
   deleteSubject,
   deleteAttendanceRecord,
   resetAttendanceSystem,
-  ATTENDANCE_CHANGE_EVENT,
 } from "@/lib/attendanceStorage";
 
 export function useAttendance() {
-  const [subjects, setSubjects] = useState<SubjectAttendance[]>(() =>
-    loadStoredSubjects()
+  const subjects = useSyncExternalStore(
+    subscribeToAttendance,
+    getSubjectsSnapshot,
+    getServerSubjectsSnapshot
   );
-  const [records, setRecords] = useState<AttendanceRecord[]>(() =>
-    loadStoredRecords()
+
+  const records = useSyncExternalStore(
+    subscribeToAttendance,
+    getRecordsSnapshot,
+    getServerRecordsSnapshot
   );
-  const [targetPercentage, setTargetPercentage] = useState<number>(() =>
-    loadStoredGlobalTarget()
+
+  const targetPercentage = useSyncExternalStore(
+    subscribeToAttendance,
+    getTargetSnapshot,
+    getServerTargetSnapshot
   );
-  const [isLoaded, setIsLoaded] = useState<boolean>(true);
-
-  const reloadData = useCallback(() => {
-    const loadedSubs = loadStoredSubjects();
-    const loadedRecs = loadStoredRecords();
-    const loadedTarget = loadStoredGlobalTarget();
-    setSubjects(loadedSubs);
-    setRecords(loadedRecs);
-    setTargetPercentage(loadedTarget);
-    setIsLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    const handleStorageEvent = () => reloadData();
-    window.addEventListener(ATTENDANCE_CHANGE_EVENT, handleStorageEvent);
-    window.addEventListener("storage", handleStorageEvent);
-
-    return () => {
-      window.removeEventListener(ATTENDANCE_CHANGE_EVENT, handleStorageEvent);
-      window.removeEventListener("storage", handleStorageEvent);
-    };
-  }, [reloadData]);
 
   const updateGlobalTarget = useCallback((newTarget: number) => {
     saveStoredGlobalTarget(newTarget);
-    setTargetPercentage(newTarget);
   }, []);
 
   const markPresent = useCallback((subjectId: string, dateStr?: string) => {
@@ -118,7 +102,7 @@ export function useAttendance() {
   );
 
   return {
-    isLoaded,
+    isLoaded: true,
     subjects,
     records,
     targetPercentage,
@@ -131,6 +115,6 @@ export function useAttendance() {
     removeSubject,
     removeRecord,
     resetAll,
-    refresh: reloadData,
+    refresh: () => {},
   };
 }

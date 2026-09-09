@@ -581,3 +581,83 @@ export function resetAttendanceSystem(): void {
   localStorage.setItem(STORAGE_KEYS.DEFAULT_TARGET, "75");
   notifyChange();
 }
+
+// =========================================================================
+// Reactive Snapshots for useSyncExternalStore
+// =========================================================================
+
+let cachedSubjectsString = "";
+let cachedSubjects: SubjectAttendance[] = DEFAULT_INITIAL_SUBJECTS;
+
+export function getSubjectsSnapshot(): SubjectAttendance[] {
+  if (typeof window === "undefined") return DEFAULT_INITIAL_SUBJECTS;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.SUBJECTS);
+    if (!raw) return DEFAULT_INITIAL_SUBJECTS;
+    if (raw !== cachedSubjectsString) {
+      cachedSubjectsString = raw;
+      cachedSubjects = JSON.parse(raw);
+    }
+    return cachedSubjects;
+  } catch {
+    return DEFAULT_INITIAL_SUBJECTS;
+  }
+}
+
+export function getServerSubjectsSnapshot(): SubjectAttendance[] {
+  return DEFAULT_INITIAL_SUBJECTS;
+}
+
+let cachedRecordsString = "";
+let cachedRecords: AttendanceRecord[] = DEFAULT_INITIAL_RECORDS;
+
+export function getRecordsSnapshot(): AttendanceRecord[] {
+  if (typeof window === "undefined") return DEFAULT_INITIAL_RECORDS;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.RECORDS);
+    if (!raw) return DEFAULT_INITIAL_RECORDS;
+    if (raw !== cachedRecordsString) {
+      cachedRecordsString = raw;
+      cachedRecords = JSON.parse(raw);
+    }
+    return cachedRecords;
+  } catch {
+    return DEFAULT_INITIAL_RECORDS;
+  }
+}
+
+export function getServerRecordsSnapshot(): AttendanceRecord[] {
+  return DEFAULT_INITIAL_RECORDS;
+}
+
+let cachedTargetString = "";
+let cachedTarget: number = 75;
+
+export function getTargetSnapshot(): number {
+  if (typeof window === "undefined") return 75;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.DEFAULT_TARGET);
+    if (!raw) return 75;
+    if (raw !== cachedTargetString) {
+      cachedTargetString = raw;
+      cachedTarget = parseInt(raw, 10) || 75;
+    }
+    return cachedTarget;
+  } catch {
+    return 75;
+  }
+}
+
+export function getServerTargetSnapshot(): number {
+  return 75;
+}
+
+export function subscribeToAttendance(callback: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener(ATTENDANCE_CHANGE_EVENT, callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener(ATTENDANCE_CHANGE_EVENT, callback);
+    window.removeEventListener("storage", callback);
+  };
+}
