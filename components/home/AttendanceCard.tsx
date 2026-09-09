@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { AttendanceSummary } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +21,8 @@ export const AttendanceCard: React.FC<AttendanceCardProps> = ({
     circumference - (attendance.percentage / 100) * circumference;
 
   return (
-    <div
+    <Link
+      href="/attendance"
       id="attendance-preview"
       tabIndex={0}
       role="region"
@@ -98,6 +100,6 @@ export const AttendanceCard: React.FC<AttendanceCardProps> = ({
           </span>
         </p>
       </div>
-    </div>
+    </Link>
   );
 };

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { UserProfile } from "@/types";
 import {
   Castle,
@@ -20,16 +21,24 @@ export interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ user }) => {
+  const pathname = usePathname();
   const [activeTab, setActiveTab] = useState<string>("home");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
     { id: "home", label: "Home", href: "/", icon: Castle },
-    { id: "attendance", label: "Attendance", href: "#attendance-preview", icon: BookOpen },
+    { id: "attendance", label: "Attendance", href: "/attendance", icon: BookOpen },
     { id: "canteen", label: "Canteen", href: "#canteen-preview", icon: Utensils },
     { id: "owl-post", label: "Owl Post", href: "#owlpost-preview", icon: Mail },
     { id: "common-room", label: "Common Room", href: "#commonroom-preview", icon: Gamepad2 },
   ];
+
+  const isItemActive = (id: string) => {
+    if (pathname === "/attendance") {
+      return id === "attendance";
+    }
+    return activeTab === id;
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full px-4 sm:px-8 py-2.5 select-none bg-gradient-to-b from-[#020509]/90 via-[#020509]/60 to-transparent backdrop-blur-sm border-b border-[#142834]/40">
@@ -64,9 +73,9 @@ export const Header: React.FC<HeaderProps> = ({ user }) => {
         >
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeTab === item.id;
+            const isActive = isItemActive(item.id);
             return (
-              <a
+              <Link
                 key={item.id}
                 href={item.href}
                 onClick={() => setActiveTab(item.id)}
@@ -93,7 +102,7 @@ export const Header: React.FC<HeaderProps> = ({ user }) => {
                     ✦
                   </span>
                 )}
-              </a>
+              </Link>
             );
           })}
         </nav>
@@ -148,9 +157,9 @@ export const Header: React.FC<HeaderProps> = ({ user }) => {
           <div className="space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = activeTab === item.id;
+              const isActive = isItemActive(item.id);
               return (
-                <a
+                <Link
                   key={item.id}
                   href={item.href}
                   onClick={() => {
@@ -166,7 +175,7 @@ export const Header: React.FC<HeaderProps> = ({ user }) => {
                 >
                   <Icon className="h-3.5 w-3.5 text-[#48D1CC]" />
                   <span>{item.label}</span>
-                </a>
+                </Link>
               );
             })}
           </div>
