@@ -30,12 +30,15 @@ export const Header: React.FC<HeaderProps> = ({ user }) => {
     { id: "attendance", label: "Attendance", href: "/attendance", icon: BookOpen },
     { id: "canteen", label: "Canteen", href: "#canteen-preview", icon: Utensils },
     { id: "owl-post", label: "Owl Post", href: "#owlpost-preview", icon: Mail },
-    { id: "common-room", label: "Common Room", href: "#commonroom-preview", icon: Gamepad2 },
+    { id: "common-room", label: "Common Room", href: "/common-room", icon: Gamepad2 },
   ];
 
   const isItemActive = (id: string) => {
     if (pathname === "/attendance") {
       return id === "attendance";
+    }
+    if (pathname === "/common-room") {
+      return id === "common-room";
     }
     return activeTab === id;
   };

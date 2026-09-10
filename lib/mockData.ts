@@ -43,7 +43,7 @@ export const mockOwlPost: OwlPostSummary = {
 };
 
 export const mockCommonRoom: CommonRoomPreview = {
-  featuredGame: "Tic-Tac-Toe",
+  featuredGame: "FUN TIME",
   subtitle: "Challenge a friend!",
   onlinePlayersCount: 14,
   gameType: "tictactoe",

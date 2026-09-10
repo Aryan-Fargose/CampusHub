@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { CommonRoomPreview } from "@/types";
 import { Gamepad2, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,11 +16,12 @@ export const CommonRoomCard: React.FC<CommonRoomCardProps> = ({
   className,
 }) => {
   return (
-    <div
-      id="commonroom-preview"
-      tabIndex={0}
-      role="region"
-      aria-label="Common Room Mini Games"
+    <Link href="/common-room" className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#48D1CC] rounded-xl">
+      <div
+        id="commonroom-preview"
+        tabIndex={0}
+        role="region"
+        aria-label="Common Room Mini Games"
       className={cn(
         "group relative flex flex-col justify-between rounded-xl p-3.5 sm:p-4 select-none",
         "backdrop-blur-md transition-all duration-300 ease-out",
@@ -80,6 +82,7 @@ export const CommonRoomCard: React.FC<CommonRoomCardProps> = ({
           <ArrowRight className="h-3 w-3 text-[#48D1CC] transition-transform duration-200 group-hover/btn:translate-x-1" />
         </button>
       </div>
-    </div>
+      </div>
+    </Link>
   );
 };
