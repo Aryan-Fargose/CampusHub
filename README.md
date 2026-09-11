@@ -3,7 +3,9 @@
 > **An enchanted, magical-academia inspired student companion web application.**
 
 CampusHub transforms collegiate daily routines into a delightful scholarly adventure — combining academic tracking, campus dining discovery, anonymous student confessions, and recreational mini-games.
+## 🚀 Live Demo
 
+https://campus-hub-delta-green.vercel.app/
 ---
 
 ## 🔮 Highlights & Planned Features
