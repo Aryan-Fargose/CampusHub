@@ -18,8 +18,10 @@ import {
   LogOut,
   LogIn,
   Compass,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ProfileSettingsModal } from "@/components/layout/ProfileSettingsModal";
 
 export interface HeaderProps {
   user?: UserProfile;
@@ -32,6 +34,7 @@ export const Header: React.FC<HeaderProps> = ({ user: propUser }) => {
   const [activeTab, setActiveTab] = useState<string>("home");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [profileSettingsOpen, setProfileSettingsOpen] = useState(false);
 
   const activeUser: UserProfile = propUser || authProfile || {
     id: "guest",
@@ -227,11 +230,12 @@ export const Header: React.FC<HeaderProps> = ({ user: propUser }) => {
                       type="button"
                       onClick={() => {
                         setProfileMenuOpen(false);
-                        router.push("/onboarding/username");
+                        setProfileSettingsOpen(true);
                       }}
                       className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg text-xs font-serif text-[#D6D9D4] hover:bg-[#0d2233] transition-colors text-left cursor-pointer"
                     >
-                      <span>Change Scholar Name</span>
+                      <Settings className="w-3.5 h-3.5 text-[#E7C56D]" />
+                      <span>Profile Settings</span>
                     </button>
                     <button
                       type="button"
@@ -294,14 +298,27 @@ export const Header: React.FC<HeaderProps> = ({ user: propUser }) => {
                 Sign In
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="text-[11px] font-serif text-red-400 hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <LogOut className="w-3 h-3" />
-                <span>Exit</span>
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setProfileSettingsOpen(true);
+                  }}
+                  className="text-[11px] font-serif text-[#E7C56D] hover:underline cursor-pointer flex items-center gap-1"
+                >
+                  <Settings className="w-3 h-3 text-[#E7C56D]" />
+                  <span>Settings</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="text-[11px] font-serif text-red-400 hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <LogOut className="w-3 h-3" />
+                  <span>Exit</span>
+                </button>
+              </div>
             )}
           </div>
 
@@ -332,6 +349,12 @@ export const Header: React.FC<HeaderProps> = ({ user: propUser }) => {
           </div>
         </div>
       )}
+
+      {/* Profile Settings Modal */}
+      <ProfileSettingsModal
+        isOpen={profileSettingsOpen}
+        onClose={() => setProfileSettingsOpen(false)}
+      />
     </header>
   );
 };

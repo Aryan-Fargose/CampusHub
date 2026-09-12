@@ -14,8 +14,10 @@ interface AuthContextValue {
   needsUsernameSetup: boolean;
   login: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string; needsUsername?: boolean }>;
   signup: (credentials: SignUpCredentials) => Promise<{ success: boolean; error?: string }>;
+  loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
   continueAsGuest: () => Promise<void>;
   setUsername: (username: string) => Promise<{ success: boolean; error?: string }>;
+  changeUsername: (username: string) => Promise<{ success: boolean; error?: string; usernameChangedAt?: string }>;
   logout: () => void;
 }
 
@@ -35,6 +37,7 @@ function mapAuthUserToUserProfile(authUser: AuthUser): UserProfile {
       academicYear: "Visitor Access",
       role: "student",
       avatarUrl: undefined,
+      usernameChangedAt: null,
     };
   }
 
@@ -48,6 +51,7 @@ function mapAuthUserToUserProfile(authUser: AuthUser): UserProfile {
     academicYear: "Sophomore • Computer Engineering",
     role: authUser.role === "guest" ? "student" : authUser.role,
     avatarUrl: authUser.avatarUrl,
+    usernameChangedAt: authUser.usernameChangedAt,
   };
 }
 
@@ -57,9 +61,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const supabase = useMemo(() => createClient(), []);
 
   const isSupabaseConfigured = useMemo(() => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    return Boolean(url && url.trim() && key && key.trim());
+    const url =
+      process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      process.env.SUPABASE_URL ||
+      "";
+    const key =
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_KEY ||
+      process.env.SUPABASE_PUBLISHABLE_KEY ||
+      process.env.SUPABASE_ANON_KEY ||
+      process.env.SUPABASE_KEY ||
+      "";
+    return Boolean(
+      url &&
+        url.trim() &&
+        !url.includes("placeholder") &&
+        key &&
+        key.trim() &&
+        !key.includes("placeholder")
+    );
   }, []);
 
   // Hydrate auth session on mount
@@ -93,21 +114,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (session?.user) {
             // Load profile from Supabase profiles table
             let username: string | null = null;
+            let usernameChangedAt: string | null = null;
             let house = "Ravenclaw";
 
             try {
               const { data: profile } = await supabase
                 .from("profiles")
-                .select("username, house")
+                .select("username, username_changed_at, house")
                 .eq("id", session.user.id)
                 .single();
 
               if (profile) {
-                username = profile.username || null;
-                house = profile.house || "Ravenclaw";
+                if (profile.username) username = profile.username;
+                if (profile.username_changed_at) usernameChangedAt = profile.username_changed_at;
+                if (profile.house) house = profile.house;
               }
             } catch {
               // Profiles table might not exist yet
+            }
+
+            // Fallback to Supabase auth user metadata
+            if (!username && session.user.user_metadata?.username) {
+              username = session.user.user_metadata.username;
+            }
+            if (!usernameChangedAt && session.user.user_metadata?.username_changed_at) {
+              usernameChangedAt = session.user.user_metadata.username_changed_at;
             }
 
             const authUser: AuthUser = {
@@ -118,7 +149,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               role: "student",
               house,
               createdAt: session.user.created_at || new Date().toISOString(),
-              provider: "email",
+              provider: session.user.app_metadata?.provider === "google" ? "google" : "email",
+              avatarUrl: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture,
+              usernameChangedAt,
             };
 
             if (isMounted) {
@@ -157,8 +190,69 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     initSession();
 
+    let authSubscription: { unsubscribe: () => void } | null = null;
+    if (isSupabaseConfigured) {
+      const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
+        if (!isMounted) return;
+
+        if (session?.user) {
+          let username: string | null = null;
+          let usernameChangedAt: string | null = null;
+          let house = "Ravenclaw";
+
+          try {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("username, username_changed_at, house")
+              .eq("id", session.user.id)
+              .single();
+
+            if (profile) {
+              if (profile.username) username = profile.username;
+              if (profile.username_changed_at) usernameChangedAt = profile.username_changed_at;
+              if (profile.house) house = profile.house;
+            }
+          } catch {
+            // Profiles table fallback
+          }
+
+          if (!username && session.user.user_metadata?.username) {
+            username = session.user.user_metadata.username;
+          }
+          if (!usernameChangedAt && session.user.user_metadata?.username_changed_at) {
+            usernameChangedAt = session.user.user_metadata.username_changed_at;
+          }
+
+          const authUser: AuthUser = {
+            id: session.user.id,
+            email: session.user.email || "scholar@campus.edu",
+            username,
+            isGuest: false,
+            role: "student",
+            house,
+            createdAt: session.user.created_at || new Date().toISOString(),
+            provider: session.user.app_metadata?.provider === "google" ? "google" : "email",
+            avatarUrl: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture,
+            usernameChangedAt,
+          };
+
+          setUser(authUser);
+          setIsLoading(false);
+          if (typeof document !== "undefined") {
+            document.cookie = "campushub_auth=true; path=/; max-age=604800";
+            document.cookie = "campushub_guest=; path=/; max-age=0";
+          }
+        } else if (event === "SIGNED_OUT") {
+          setUser(null);
+          setIsLoading(false);
+        }
+      });
+      authSubscription = data.subscription;
+    }
+
     return () => {
       isMounted = false;
+      authSubscription?.unsubscribe();
     };
   }, [supabase, isSupabaseConfigured]);
 
@@ -177,20 +271,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         let username: string | null = null;
+        let usernameChangedAt: string | null = null;
         let house = "Ravenclaw";
         try {
           const { data: profile } = await supabase
             .from("profiles")
-            .select("username, house")
+            .select("username, username_changed_at, house")
             .eq("id", data.user.id)
             .single();
 
           if (profile) {
-            username = profile.username || null;
-            house = profile.house || "Ravenclaw";
+            if (profile.username) username = profile.username;
+            if (profile.username_changed_at) usernameChangedAt = profile.username_changed_at;
+            if (profile.house) house = profile.house;
           }
         } catch {
           // profiles table fallback
+        }
+
+        if (!username && data.user.user_metadata?.username) {
+          username = data.user.user_metadata.username;
+        }
+        if (!usernameChangedAt && data.user.user_metadata?.username_changed_at) {
+          usernameChangedAt = data.user.user_metadata.username_changed_at;
         }
 
         const authUser: AuthUser = {
@@ -202,11 +305,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           house,
           createdAt: data.user.created_at || new Date().toISOString(),
           provider: "email",
+          usernameChangedAt,
         };
 
         setUser(authUser);
+        localStorage.setItem(LOCAL_STORAGE_SESSION, JSON.stringify({ user: authUser }));
         // Clear guest cookie
         document.cookie = "campushub_guest=; path=/; max-age=0";
+        document.cookie = "campushub_auth=true; path=/; max-age=604800";
         return { success: true, needsUsername: !username };
       }
 
@@ -346,12 +452,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const cleanUsername = username.trim();
 
-      // If Supabase is configured, save to `profiles` table
+      // If Supabase is configured, save to both user_metadata and public.profiles table
       if (isSupabaseConfigured && !user.isGuest) {
+        // 1. Dual-persistence: Update Supabase auth user metadata directly with auth.uid()
+        try {
+          const { error: metaError } = await supabase.auth.updateUser({
+            data: {
+              username: cleanUsername,
+              // First username creation during onboarding does NOT count as a change and does not start cooldown
+              username_changed_at: null,
+            },
+          });
+          if (metaError) {
+            console.warn("Could not update auth user metadata:", metaError.message);
+          }
+        } catch (err) {
+          console.warn("Error updating auth user metadata:", err);
+        }
+
+        // 2. Dual-persistence: Upsert to profiles table if present
         try {
           const { error } = await supabase.from("profiles").upsert({
             id: user.id,
             username: cleanUsername,
+            username_changed_at: null,
             house: user.house || "Ravenclaw",
             updated_at: new Date().toISOString(),
           });
@@ -371,6 +495,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const idx = accounts.findIndex((a: { id: string }) => a.id === user.id);
         if (idx !== -1) {
           accounts[idx].user.username = cleanUsername;
+          accounts[idx].user.usernameChangedAt = null;
           localStorage.setItem(LOCAL_STORAGE_USERS, JSON.stringify(accounts));
         }
       }
@@ -378,6 +503,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const updatedUser: AuthUser = {
         ...user,
         username: cleanUsername,
+        usernameChangedAt: null,
       };
 
       localStorage.setItem(LOCAL_STORAGE_SESSION, JSON.stringify({ user: updatedUser }));
@@ -386,6 +512,95 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     },
     [user, supabase, isSupabaseConfigured]
   );
+
+  const changeUsername = useCallback(
+    async (newUsername: string) => {
+      if (!user) {
+        return { success: false, error: "No active session." };
+      }
+
+      const trimmed = newUsername.trim();
+
+      if (user.isGuest) {
+        const updatedUser: AuthUser = {
+          ...user,
+          username: trimmed,
+        };
+        setUser(updatedUser);
+        return { success: true };
+      }
+
+      try {
+        const res = await fetch("/api/profile/username", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: trimmed }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          return {
+            success: false,
+            error: data.error || "Unable to change username.",
+          };
+        }
+
+        const updatedUser: AuthUser = {
+          ...user,
+          username: data.username,
+          usernameChangedAt: data.username_changed_at,
+        };
+
+        setUser(updatedUser);
+        localStorage.setItem(LOCAL_STORAGE_SESSION, JSON.stringify({ user: updatedUser }));
+        return {
+          success: true,
+          usernameChangedAt: data.username_changed_at,
+        };
+      } catch (err) {
+        console.error("Change username network error:", err);
+        return {
+          success: false,
+          error: "An unexpected network error occurred.",
+        };
+      }
+    },
+    [user]
+  );
+
+  const loginWithGoogle = useCallback(async () => {
+    try {
+      const redirectTo =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/auth/callback`
+          : undefined;
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo,
+        },
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (data?.url && typeof window !== "undefined") {
+        window.location.href = data.url;
+      }
+
+      return { success: true };
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to initiate Google sign-in.";
+      return {
+        success: false,
+        error: message,
+      };
+    }
+  }, [supabase]);
 
   const logout = useCallback(async () => {
     if (isSupabaseConfigured) {
@@ -415,8 +630,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       needsUsernameSetup,
       login,
       signup,
+      loginWithGoogle,
       continueAsGuest,
       setUsername,
+      changeUsername,
       logout,
     }),
     [
@@ -428,8 +645,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       needsUsernameSetup,
       login,
       signup,
+      loginWithGoogle,
       continueAsGuest,
       setUsername,
+      changeUsername,
       logout,
     ]
   );

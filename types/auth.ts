@@ -13,6 +13,7 @@ export interface AuthUser {
   createdAt: string;
   provider: "email" | "google" | "guest";
   avatarUrl?: string;
+  usernameChangedAt?: string | null;
 }
 
 export interface AuthSession {
@@ -32,6 +33,7 @@ export interface AuthState {
 export interface SupabaseProfileRow {
   id: string;
   username: string | null;
+  username_changed_at?: string | null;
   house?: string;
   created_at?: string;
   updated_at?: string;

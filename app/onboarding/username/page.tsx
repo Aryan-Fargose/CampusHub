@@ -16,6 +16,12 @@ export default function UsernameOnboardingPage() {
   const [isSuccessExiting, setIsSuccessExiting] = useState(false);
 
   useEffect(() => {
+    // If user already has a username, redirect back to homepage
+    if (user?.username && !isGuest) {
+      router.replace("/");
+      return;
+    }
+
     if (!isAuthenticated && !isGuest && user === null) {
       const timer = setTimeout(() => {
         if (!isAuthenticated && !isGuest) {

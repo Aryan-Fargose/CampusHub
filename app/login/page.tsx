@@ -19,13 +19,30 @@ import {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isAuthenticated, user } = useAuth();
+  const { login, loginWithGoogle, isAuthenticated, user } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const err = params.get("error");
+      if (err) {
+        setErrors((prev) => ({
+          ...prev,
+          general:
+            err === "oauth"
+              ? "Google authentication failed. Please try again."
+              : decodeURIComponent(err),
+        }));
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -93,6 +110,22 @@ export default function LoginPage() {
       console.error("Login error:", err);
       setErrors({ general: "An unexpected error occurred during login." });
       setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setErrors({});
+    setIsGoogleSubmitting(true);
+    try {
+      const res = await loginWithGoogle();
+      if (!res.success) {
+        setErrors({ general: res.error || "Failed to initiate Google sign-in." });
+        setIsGoogleSubmitting(false);
+      }
+    } catch (err) {
+      console.error("Google login error:", err);
+      setErrors({ general: "An unexpected error occurred during Google sign-in." });
+      setIsGoogleSubmitting(false);
     }
   };
 
@@ -212,7 +245,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isGoogleSubmitting}
               className="group relative flex items-center justify-center gap-2 w-full mt-2 py-3 px-6 rounded-xl bg-gradient-to-r from-[#E7C56D] via-[#deb655] to-[#c59a3f] text-[#07131e] font-cinzel font-bold text-xs sm:text-sm tracking-[0.18em] shadow-[0_0_20px_rgba(231,197,109,0.35)] hover:shadow-[0_0_28px_rgba(231,197,109,0.6)] hover:scale-[1.02] active:scale-[0.99] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
             >
               {isSubmitting ? (
@@ -225,6 +258,52 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+
+          {/* Google OAuth Section */}
+          <div className="mt-4">
+            <div className="relative flex items-center justify-center mb-3.5">
+              <div className="border-t border-[#142834] w-full" />
+              <span className="bg-[#040f19] px-3 text-[10px] font-serif text-[#64748b] uppercase tracking-widest absolute">
+                or
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={isSubmitting || isGoogleSubmitting}
+              className="group relative flex items-center justify-center gap-2.5 w-full py-3 px-6 rounded-xl bg-[#081520]/80 hover:bg-[#0c1f30] border border-[#1b3b48] hover:border-[#E7C56D]/60 text-[#D6D9D4] hover:text-[#F6E6AE] font-cinzel font-semibold text-xs sm:text-sm tracking-[0.16em] shadow-[0_4px_16px_rgba(0,0,0,0.4)] hover:shadow-[0_0_20px_rgba(231,197,109,0.2)] hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {isGoogleSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-[#E7C56D]" />
+                  <span>CONNECTING TO GOOGLE...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                    />
+                  </svg>
+                  <span>CONTINUE WITH GOOGLE</span>
+                </>
+              )}
+            </button>
+          </div>
 
           {/* Footer Back to Sign Up */}
           <div className="text-center mt-5 pt-4 border-t border-[#142834]/80">

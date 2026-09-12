@@ -24,6 +24,7 @@ export interface UserProfile {
   campusName: string;
   academicYear: string;
   role: "student" | "prefect" | "scholar";
+  usernameChangedAt?: string | null;
 }
 
 export interface AttendanceSummary {
