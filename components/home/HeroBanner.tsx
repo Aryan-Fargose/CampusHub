@@ -8,11 +8,13 @@ export interface HeroBannerProps {
 }
 
 export const HeroBanner: React.FC<HeroBannerProps> = ({ user }) => {
+  const isGuestUser = user.displayName?.toLowerCase() === "guest" || user.id?.startsWith("guest_");
+
   return (
     <section className="relative z-20 flex flex-col items-center justify-center text-center px-4 py-1 sm:py-3 select-none">
       {/* Subtitle */}
       <span className="font-cormorant italic text-lg sm:text-xl text-[#D6D9D4] mb-0.5 drop-shadow-sm">
-        Welcome back,
+        {isGuestUser ? "Welcome to CampusHub," : "Welcome back,"}
       </span>
 
       {/* Majestic Gilded Golden Name - Exactly Matching OWL POST's Cinzel Decorative Font */}
@@ -22,7 +24,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ user }) => {
           fontFamily: 'var(--font-cinzel), "Cinzel Decorative", serif',
         }}
       >
-        {user.displayName}
+        {isGuestUser ? "GUEST EXPLORER" : user.displayName}
       </h1>
 
       {/* Delicate Glowing Star with Animated Twinkle and Horizontal Ray Lines */}

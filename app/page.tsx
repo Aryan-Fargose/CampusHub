@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { ParallaxScene } from "@/components/home/ParallaxScene";
 import { HeroBanner } from "@/components/home/HeroBanner";
@@ -9,6 +10,7 @@ import { CanteenCard } from "@/components/home/CanteenCard";
 import { OwlPostCard } from "@/components/home/OwlPostCard";
 import { CommonRoomCard } from "@/components/home/CommonRoomCard";
 import { BottomControls } from "@/components/home/BottomControls";
+import { useAuth } from "@/lib/auth/AuthContext";
 
 import {
   mockCurrentUser,
@@ -21,10 +23,21 @@ import { useAttendance } from "@/lib/useAttendance";
 import { ThemeId } from "@/types";
 
 export default function HomePage() {
-  const [currentUser] = useState(mockCurrentUser);
+  const router = useRouter();
+  const { profile, isAuthenticated, isGuest, isLoading, needsUsernameSetup } = useAuth();
   const [currentThemeId, setCurrentThemeId] = useState<ThemeId>("midnight");
   const [exploreAlert, setExploreAlert] = useState(false);
   const { overallStats } = useAttendance();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!isAuthenticated && !isGuest) {
+        router.replace("/auth");
+      } else if (needsUsernameSetup) {
+        router.replace("/onboarding/username");
+      }
+    }
+  }, [isLoading, isAuthenticated, isGuest, needsUsernameSetup, router]);
 
   const dynamicAttendance = {
     percentage: overallStats.percentage,
@@ -39,6 +52,22 @@ export default function HomePage() {
     setExploreAlert(true);
     setTimeout(() => setExploreAlert(false), 3000);
   };
+
+  // If loading or unauthenticated, show a clean dark ambient state
+  if (isLoading || (!isAuthenticated && !isGuest)) {
+    return (
+      <div className="min-h-screen bg-[#020509] flex items-center justify-center select-none">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-9 w-9 rounded-full border-2 border-[#E7C56D] border-t-transparent animate-spin" />
+          <span className="font-cinzel text-xs text-[#E7C56D] tracking-widest uppercase">
+            Opening Sanctum...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  const currentUser = profile || mockCurrentUser;
 
   return (
     <div className="relative min-h-screen flex flex-col justify-between overflow-x-hidden bg-[#020509] text-[#f1ede4]">

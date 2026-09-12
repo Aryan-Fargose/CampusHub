@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserProfile } from "@/types";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth/AuthContext";
 import {
   Castle,
   BookOpen,
@@ -13,17 +15,42 @@ import {
   ChevronDown,
   Menu,
   X,
+  LogOut,
+  LogIn,
+  Compass,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface HeaderProps {
-  user: UserProfile;
+  user?: UserProfile;
 }
 
-export const Header: React.FC<HeaderProps> = ({ user }) => {
+export const Header: React.FC<HeaderProps> = ({ user: propUser }) => {
+  const router = useRouter();
   const pathname = usePathname();
+  const { user: authUser, profile: authProfile, logout, isGuest } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("home");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+
+  const activeUser: UserProfile = propUser || authProfile || {
+    id: "guest",
+    displayName: "Guest",
+    fullName: "Guest Explorer",
+    house: "Campus Visitor",
+    campusName: "CampusHub",
+    academicYear: "Visitor",
+    role: "student",
+  };
+
+  const isGuestUser = isGuest || activeUser.displayName?.toLowerCase() === "guest" || activeUser.id?.startsWith("guest_");
+
+  const handleLogout = async () => {
+    await logout();
+    setProfileMenuOpen(false);
+    setMobileMenuOpen(false);
+    router.push("/auth");
+  };
 
   const navItems = [
     { id: "home", label: "Home", href: "/", icon: Castle },
@@ -110,27 +137,115 @@ export const Header: React.FC<HeaderProps> = ({ user }) => {
           })}
         </nav>
 
-        {/* Right: Aryan F. Ravenclaw Profile Badge with Caret */}
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2.5 cursor-pointer group">
-            {/* Ornate Circular Ravenclaw Shield Portrait */}
-            <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-b from-[#14233c] to-[#08101d] border border-[#E7C56D]/70 text-[#93c5fd] shadow-[0_0_10px_rgba(231,197,109,0.25)] group-hover:border-[#F6E6AE] transition-all">
-              <span className="text-xs">🦅</span>
+        {/* Right: Dynamic User Profile Badge with Caret & Dropdown */}
+        <div className="relative flex items-center gap-3">
+          <div
+            onClick={() => setProfileMenuOpen((prev) => !prev)}
+            className="hidden sm:flex items-center gap-2.5 cursor-pointer group select-none"
+          >
+            {/* Ornate Circular Portrait */}
+            <div
+              className={cn(
+                "relative flex h-8 w-8 items-center justify-center rounded-full transition-all",
+                isGuestUser
+                  ? "bg-[#081b24] border border-[#48D1CC]/70 text-[#48D1CC] shadow-[0_0_10px_rgba(72,209,204,0.25)] group-hover:border-[#48D1CC]"
+                  : "bg-gradient-to-b from-[#14233c] to-[#08101d] border border-[#E7C56D]/70 text-[#93c5fd] shadow-[0_0_10px_rgba(231,197,109,0.25)] group-hover:border-[#F6E6AE]"
+              )}
+            >
+              {isGuestUser ? <Compass className="w-4 h-4 text-[#48D1CC]" /> : <span className="text-xs">🦅</span>}
             </div>
 
             {/* Name & House */}
             <div className="flex flex-col text-left">
               <span className="font-cinzel text-xs font-bold text-[#D6D9D4] group-hover:text-[#F6E6AE] transition-colors">
-                {user.displayName} F.
+                {activeUser.displayName}
               </span>
               <span className="text-[10px] text-[#9BA9AF] font-cormorant italic leading-none">
-                {user.house}
+                {isGuestUser ? "Guest Explorer" : activeUser.house}
               </span>
             </div>
 
             {/* Downward Chevron */}
-            <ChevronDown className="h-3 w-3 text-[#9BA9AF] group-hover:text-[#D6D9D4] transition-colors" />
+            <ChevronDown
+              className={cn(
+                "h-3 w-3 text-[#9BA9AF] group-hover:text-[#D6D9D4] transition-transform duration-200",
+                profileMenuOpen && "rotate-180"
+              )}
+            />
           </div>
+
+          {/* Profile Dropdown Popover */}
+          {profileMenuOpen && (
+            <div className="absolute right-0 top-11 z-50 w-56 rounded-xl bg-[#040f19]/95 border border-[#1b3b48] p-3 shadow-[0_12px_36px_rgba(0,0,0,0.85)] backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="pb-2.5 mb-2 border-b border-[#142834]">
+                <p className="font-cinzel text-xs font-bold text-[#F6E6AE]">{activeUser.displayName}</p>
+                <p className="text-[10px] text-[#9BA9AF] font-cormorant italic">
+                  {isGuestUser ? "Guest Session • Public Access" : `${activeUser.house} • Student`}
+                </p>
+                {authUser?.email && !isGuestUser && (
+                  <p className="text-[10px] text-[#64748b] truncate mt-0.5">{authUser.email}</p>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                {isGuestUser ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        router.push("/login");
+                      }}
+                      className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg text-xs font-serif text-[#48D1CC] hover:bg-[#07232c] transition-colors text-left cursor-pointer"
+                    >
+                      <LogIn className="w-3.5 h-3.5 text-[#48D1CC]" />
+                      <span>Log In to Account</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        router.push("/signup");
+                      }}
+                      className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg text-xs font-serif text-[#E7C56D] hover:bg-[#251b0a] transition-colors text-left cursor-pointer"
+                    >
+                      <LogIn className="w-3.5 h-3.5 text-[#E7C56D]" />
+                      <span>Create Account</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg text-xs font-serif text-slate-400 hover:text-red-400 hover:bg-red-950/30 transition-colors text-left cursor-pointer"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Exit Guest Mode</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        router.push("/onboarding/username");
+                      }}
+                      className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg text-xs font-serif text-[#D6D9D4] hover:bg-[#0d2233] transition-colors text-left cursor-pointer"
+                    >
+                      <span>Change Scholar Name</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg text-xs font-serif text-red-400 hover:bg-red-950/40 transition-colors text-left cursor-pointer"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Sign Out</span>
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Mobile Menu Button */}
           <button
@@ -147,14 +262,47 @@ export const Header: React.FC<HeaderProps> = ({ user }) => {
       {/* Mobile Nav Drawer */}
       {mobileMenuOpen && (
         <div className="md:hidden mt-2.5 pt-2.5 border-t border-[#142834] bg-[#030810]/95 rounded-xl p-3 backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="flex items-center gap-2.5 pb-2 mb-2 border-b border-[#142834]">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#14233c] border border-amber-500/50 text-amber-300 text-xs">
-              🦅
+          <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#142834]">
+            <div className="flex items-center gap-2.5">
+              <div
+                className={cn(
+                  "flex h-7 w-7 items-center justify-center rounded-full text-xs",
+                  isGuestUser
+                    ? "bg-[#081b24] border border-[#48D1CC]/70 text-[#48D1CC]"
+                    : "bg-[#14233c] border border-amber-500/50 text-amber-300"
+                )}
+              >
+                {isGuestUser ? <Compass className="w-3.5 h-3.5" /> : "🦅"}
+              </div>
+              <div>
+                <p className="font-cinzel text-xs font-bold text-[#D6D9D4]">{activeUser.displayName}</p>
+                <p className="text-[10px] text-[#9BA9AF] font-cormorant italic">
+                  {isGuestUser ? "Guest Explorer" : `${activeUser.house} • CampusHub`}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="font-cinzel text-xs font-bold text-[#D6D9D4]">{user.displayName} F.</p>
-              <p className="text-[10px] text-[#9BA9AF] font-cormorant italic">{user.house} &bull; CampusHub</p>
-            </div>
+
+            {isGuestUser ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  router.push("/login");
+                }}
+                className="text-[11px] font-serif text-[#E7C56D] hover:underline cursor-pointer"
+              >
+                Sign In
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="text-[11px] font-serif text-red-400 hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <LogOut className="w-3 h-3" />
+                <span>Exit</span>
+              </button>
+            )}
           </div>
 
           <div className="space-y-1">
