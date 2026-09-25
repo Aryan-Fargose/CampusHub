@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { MedievalSharp, Cinzel_Decorative, Cormorant_Garamond } from "next/font/google";
 import { AuthProvider } from "@/lib/auth/AuthContext";
+import { CampusMusicProvider } from "@/components/music/CampusMusicContext";
+import { CampusMusicModal } from "@/components/music/CampusMusicModal";
 import "./globals.css";
 
 const medievalSharp = MedievalSharp({
@@ -25,6 +27,7 @@ const cormorantGaramond = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://campushub.local"),
   title: "CampusHub — Magical-Academia Student Companion",
   description:
     "An enchanted, cinematic magical-academia student companion web application.",
@@ -37,6 +40,30 @@ export const metadata: Metadata = {
     "magical academia",
   ],
   authors: [{ name: "CampusHub Contributors" }],
+  icons: {
+    icon: [
+      { url: "/campushub-logo.png", sizes: "512x512", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: [
+      { url: "/campushub-logo.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: "/campushub-logo.png",
+  },
+  openGraph: {
+    title: "CampusHub — Magical-Academia Student Companion",
+    description:
+      "An enchanted, cinematic magical-academia student companion web application.",
+    siteName: "CampusHub",
+    images: [
+      {
+        url: "/campushub-logo.png",
+        width: 512,
+        height: 512,
+        alt: "CampusHub Official Logo",
+      },
+    ],
+  },
 };
 
 export const viewport: Viewport = {
@@ -57,7 +84,12 @@ export default function RootLayout({
       className={`dark h-full ${medievalSharp.variable} ${cinzelDecorative.variable} ${cormorantGaramond.variable}`}
     >
       <body className="min-h-full flex flex-col bg-[#03060a] text-[#D6D9D4] font-cormorant antialiased selection:bg-amber-500/30 selection:text-amber-200">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <CampusMusicProvider>
+            {children}
+            <CampusMusicModal />
+          </CampusMusicProvider>
+        </AuthProvider>
       </body>
     </html>
   );

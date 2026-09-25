@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { animate, stagger } from "animejs";
 import { Compass, LogIn, UserPlus, Sparkles } from "lucide-react";
+import { CampusHubLogo } from "@/components/ui/CampusHubLogo";
 
 export default function AuthGatewayPage() {
   const router = useRouter();
@@ -87,11 +88,13 @@ export default function AuthGatewayPage() {
       </div>
 
       <main className="relative z-10 w-full max-w-md flex flex-col items-center text-center">
-        {/* Ornate Gold Castle Shield Emblem */}
-        <div className="auth-portal-crest relative flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-gradient-to-b from-[#2a1e0c] via-[#150f06] to-[#0a0703] border-2 border-[#E7C56D]/80 text-[#E7C56D] shadow-[0_0_28px_rgba(231,197,109,0.35)] mb-5">
-          <svg viewBox="0 0 24 24" className="w-8 h-8 sm:w-10 sm:h-10 fill-current text-[#E7C56D]">
-            <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z" />
-          </svg>
+        {/* Official CampusHub Logo */}
+        <div className="auth-portal-crest relative mb-5">
+          <CampusHubLogo
+            size="lg"
+            priority
+            className="shadow-[0_0_32px_rgba(231,197,109,0.45)]"
+          />
           <span className="absolute -top-1.5 -right-1.5 h-3 w-3 rounded-full bg-[#48D1CC] animate-pulse shadow-[0_0_10px_#48D1CC]" />
         </div>
 

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { animate } from "animejs";
 import { ArrowLeft, UserPlus, Lock, Mail, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { CampusHubLogo } from "@/components/ui/CampusHubLogo";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -166,8 +167,8 @@ export default function SignUpPage() {
         <div className="w-full bg-[#040f19]/90 border border-[#1b3b48]/80 rounded-2xl p-6 sm:p-8 backdrop-blur-md shadow-[0_16px_50px_rgba(0,0,0,0.85)]">
           {/* Header */}
           <div className="text-center mb-6">
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#052822] border border-[#10b981]/50 text-[#10b981] shadow-[0_0_16px_rgba(16,185,129,0.3)] mb-3">
-              <UserPlus className="w-6 h-6" />
+            <div className="inline-flex items-center justify-center mb-3">
+              <CampusHubLogo size="md" priority />
             </div>
 
             <h1

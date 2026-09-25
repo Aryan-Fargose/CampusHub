@@ -11,6 +11,7 @@ import { OwlPostCard } from "@/components/home/OwlPostCard";
 import { CommonRoomCard } from "@/components/home/CommonRoomCard";
 import { BottomControls } from "@/components/home/BottomControls";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { CampusHubLogo } from "@/components/ui/CampusHubLogo";
 
 import {
   mockCurrentUser,
@@ -57,11 +58,18 @@ export default function HomePage() {
   if (isLoading || (!isAuthenticated && !isGuest)) {
     return (
       <div className="min-h-screen bg-[#020509] flex items-center justify-center select-none">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-9 w-9 rounded-full border-2 border-[#E7C56D] border-t-transparent animate-spin" />
-          <span className="font-cinzel text-xs text-[#E7C56D] tracking-widest uppercase">
-            Opening Sanctum...
-          </span>
+        <div className="flex flex-col items-center gap-4">
+          <CampusHubLogo
+            size="lg"
+            priority
+            className="animate-pulse shadow-[0_0_32px_rgba(231,197,109,0.5)]"
+          />
+          <div className="flex items-center gap-2.5">
+            <div className="h-4 w-4 rounded-full border-2 border-[#E7C56D] border-t-transparent animate-spin" />
+            <span className="font-cinzel text-xs text-[#E7C56D] tracking-widest uppercase">
+              Opening Sanctum...
+            </span>
+          </div>
         </div>
       </div>
     );

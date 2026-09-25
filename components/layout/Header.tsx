@@ -12,6 +12,7 @@ import {
   Utensils,
   Mail,
   Gamepad2,
+  Music,
   ChevronDown,
   Menu,
   X,
@@ -22,6 +23,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProfileSettingsModal } from "@/components/layout/ProfileSettingsModal";
+import { useCampusMusic } from "@/components/music/CampusMusicContext";
+import { CampusHubLogo } from "@/components/ui/CampusHubLogo";
 
 export interface HeaderProps {
   user?: UserProfile;
@@ -31,6 +34,7 @@ export const Header: React.FC<HeaderProps> = ({ user: propUser }) => {
   const router = useRouter();
   const pathname = usePathname();
   const { user: authUser, profile: authProfile, logout, isGuest } = useAuth();
+  const { expandPlayer } = useCampusMusic();
   const [activeTab, setActiveTab] = useState<string>("home");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -58,6 +62,7 @@ export const Header: React.FC<HeaderProps> = ({ user: propUser }) => {
   const navItems = [
     { id: "home", label: "Home", href: "/", icon: Castle },
     { id: "attendance", label: "Attendance", href: "/attendance", icon: BookOpen },
+    { id: "music", label: "Music", href: "/music", icon: Music },
     { id: "canteen", label: "Canteen", href: "#canteen-preview", icon: Utensils },
     { id: "owl-post", label: "Owl Post", href: "#owlpost-preview", icon: Mail },
     { id: "common-room", label: "Common Room", href: "/common-room", icon: Gamepad2 },
@@ -70,6 +75,9 @@ export const Header: React.FC<HeaderProps> = ({ user: propUser }) => {
     if (pathname === "/common-room") {
       return id === "common-room";
     }
+    if (pathname === "/music") {
+      return id === "music";
+    }
     return activeTab === id;
   };
 
@@ -81,11 +89,13 @@ export const Header: React.FC<HeaderProps> = ({ user: propUser }) => {
           href="/"
           className="group flex items-center gap-3 focus:outline-none"
         >
-          {/* Ornate Gold Castle Shield Emblem */}
-          <div className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-b from-[#2a1e0c] via-[#150f06] to-[#0a0703] border border-[#E7C56D]/70 text-[#E7C56D] shadow-[0_0_12px_rgba(231,197,109,0.3)] group-hover:border-[#F6E6AE] group-hover:scale-105 group-hover:shadow-[0_0_16px_rgba(231,197,109,0.5)] transition-all duration-200">
-            <svg viewBox="0 0 24 24" className="w-4.5 h-4.5 fill-current text-[#E7C56D]">
-              <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z" />
-            </svg>
+          {/* Official CampusHub Logo */}
+          <div className="relative group-hover:scale-105 transition-transform duration-200">
+            <CampusHubLogo
+              size="sm"
+              priority
+              className="group-hover:shadow-[0_0_18px_rgba(231,197,109,0.55)] transition-shadow duration-200"
+            />
             <span className="absolute -top-1 -right-1 h-1.5 w-1.5 rounded-full bg-[#48D1CC] animate-pulse shadow-[0_0_6px_#48D1CC]" />
           </div>
 
@@ -111,7 +121,12 @@ export const Header: React.FC<HeaderProps> = ({ user: propUser }) => {
               <Link
                 key={item.id}
                 href={item.href}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  if (item.id === "music") {
+                    expandPlayer();
+                  }
+                }}
                 className={cn(
                   "group relative flex items-center gap-1.5 py-1 text-xs font-serif tracking-wide transition-all duration-200 focus:outline-none select-none",
                   isActive
@@ -333,6 +348,9 @@ export const Header: React.FC<HeaderProps> = ({ user: propUser }) => {
                   onClick={() => {
                     setActiveTab(item.id);
                     setMobileMenuOpen(false);
+                    if (item.id === "music") {
+                      expandPlayer();
+                    }
                   }}
                   className={cn(
                     "flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-serif transition-colors",

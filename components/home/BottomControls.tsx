@@ -2,24 +2,33 @@
 
 import React, { useState } from "react";
 import { CampusQuote, ThemeId } from "@/types";
-import { Volume2, VolumeX, Music, Sun, BookOpen } from "lucide-react";
+import { Volume2, VolumeX, Music, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCampusMusic } from "@/components/music/CampusMusicContext";
 
 export interface BottomControlsProps {
   quotes: CampusQuote[];
-  currentThemeId: ThemeId;
-  onThemeChange: (themeId: ThemeId) => void;
+  currentThemeId?: ThemeId;
+  onThemeChange?: (themeId: ThemeId) => void;
+  onOpenMusic?: () => void;
+  isMusicActive?: boolean;
   className?: string;
 }
 
 export const BottomControls: React.FC<BottomControlsProps> = ({
   quotes,
-  currentThemeId,
-  onThemeChange,
+  onOpenMusic,
+  isMusicActive: propIsMusicActive,
   className,
 }) => {
-  const [isPlayingMusic, setIsPlayingMusic] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
+  const {
+    isOpen,
+    isMinimized,
+    togglePlayer,
+    isMuted,
+    toggleMute,
+  } = useCampusMusic();
+
   const [quoteIndex, setQuoteIndex] = useState(0);
 
   const currentQuote = quotes[quoteIndex] || {
@@ -32,10 +41,13 @@ export const BottomControls: React.FC<BottomControlsProps> = ({
     setQuoteIndex((prev) => (prev + 1) % quotes.length);
   };
 
-  const themes: ThemeId[] = ["midnight", "crimson", "emerald", "azure", "golden"];
-  const cycleTheme = () => {
-    const nextIdx = (themes.indexOf(currentThemeId) + 1) % themes.length;
-    onThemeChange(themes[nextIdx]);
+  const isMusicActive = propIsMusicActive ?? (isOpen && !isMinimized);
+
+  const handleMusicClick = () => {
+    togglePlayer();
+    if (onOpenMusic) {
+      onOpenMusic();
+    }
   };
 
   return (
@@ -46,48 +58,39 @@ export const BottomControls: React.FC<BottomControlsProps> = ({
         className
       )}
     >
-      {/* Left: 3 Glowing Circular Audio & Ambience Buttons with Hover Scale & Glow */}
+      {/* Left: 2 Useful Audio Controls (Music button & Speaker/Volume button - Sun/Light button removed) */}
       <div className="flex items-center gap-2.5">
         <button
           type="button"
-          onClick={() => setIsPlayingMusic((prev) => !prev)}
-          aria-label={isPlayingMusic ? "Pause music" : "Play music"}
+          onClick={handleMusicClick}
+          title="Campus Music"
+          aria-label={isMusicActive ? "Campus Music player open" : "Open Campus Music player"}
           className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 cursor-pointer focus:outline-none hover:scale-110 active:scale-95",
+            "group relative flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 cursor-pointer focus:outline-none hover:scale-110 active:scale-95",
             "shadow-[0_0_12px_rgba(0,0,0,0.8)]",
-            isPlayingMusic
+            isMusicActive
               ? "border border-[#48D1CC] text-[#48D1CC] shadow-[0_0_14px_rgba(72,209,204,0.45)]"
               : "border border-[#17303d] text-[#64748b] hover:text-[#94a3b8]"
           )}
           style={{ backgroundColor: "rgba(4, 15, 25, 0.88)" }}
         >
-          <Music className={cn("h-3.5 w-3.5", isPlayingMusic && "animate-pulse")} />
+          <Music className={cn("h-3.5 w-3.5", isMusicActive && "animate-pulse")} />
         </button>
 
         <button
           type="button"
-          onClick={() => setIsMuted((prev) => !prev)}
+          onClick={toggleMute}
+          title={isMuted ? "Unmute audio" : "Mute audio"}
           aria-label={isMuted ? "Unmute sound" : "Mute sound"}
           className={cn(
             "flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 cursor-pointer focus:outline-none hover:scale-110 active:scale-95",
-            "border border-[#17303d] text-[#64748b] hover:text-[#D6D9D4] hover:border-[#48D1CC]/70 shadow-[0_0_12px_rgba(0,0,0,0.8)] hover:shadow-[0_0_14px_rgba(72,209,204,0.35)]"
+            isMuted
+              ? "border border-amber-500/60 text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.3)]"
+              : "border border-[#17303d] text-[#64748b] hover:text-[#D6D9D4] hover:border-[#48D1CC]/70 shadow-[0_0_12px_rgba(0,0,0,0.8)] hover:shadow-[0_0_14px_rgba(72,209,204,0.35)]"
           )}
           style={{ backgroundColor: "rgba(4, 15, 25, 0.88)" }}
         >
           {isMuted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
-        </button>
-
-        <button
-          type="button"
-          onClick={cycleTheme}
-          aria-label="Cycle chamber theme"
-          className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 cursor-pointer focus:outline-none hover:scale-110 active:scale-95",
-            "border border-[#17303d] text-[#64748b] hover:text-[#E7C56D] hover:border-[#E7C56D]/70 shadow-[0_0_12px_rgba(0,0,0,0.8)] hover:shadow-[0_0_14px_rgba(231,197,109,0.35)]"
-          )}
-          style={{ backgroundColor: "rgba(4, 15, 25, 0.88)" }}
-        >
-          <Sun className="h-3.5 w-3.5" />
         </button>
       </div>
 

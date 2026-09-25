@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { animate } from "animejs";
 import { Sparkles, ArrowRight, AlertCircle, Loader2, Feather } from "lucide-react";
+import { CampusHubLogo } from "@/components/ui/CampusHubLogo";
 
 export default function UsernameOnboardingPage() {
   const router = useRouter();
@@ -129,9 +130,13 @@ export default function UsernameOnboardingPage() {
       </div>
 
       <main className="relative z-10 w-full max-w-md flex flex-col items-center text-center">
-        {/* Enchanted Feather Quill Emblem */}
-        <div className="onboarding-crest relative flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-gradient-to-b from-[#2a1e0c] via-[#150f06] to-[#0a0703] border-2 border-[#E7C56D]/80 text-[#E7C56D] shadow-[0_0_24px_rgba(231,197,109,0.35)] mb-5">
-          <Feather className="w-7 h-7 sm:w-8 sm:h-8 text-[#E7C56D]" />
+        {/* Official CampusHub Logo */}
+        <div className="onboarding-crest relative mb-5">
+          <CampusHubLogo
+            size="lg"
+            priority
+            className="shadow-[0_0_28px_rgba(231,197,109,0.45)]"
+          />
           <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-[#48D1CC] animate-pulse shadow-[0_0_8px_#48D1CC]" />
         </div>
 
