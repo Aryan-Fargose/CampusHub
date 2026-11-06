@@ -64,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({ user: propUser }) => {
     { id: "attendance", label: "Attendance", href: "/attendance", icon: BookOpen },
     { id: "music", label: "Music", href: "/music", icon: Music },
     { id: "canteen", label: "Canteen", href: "#canteen-preview", icon: Utensils },
-    { id: "owl-post", label: "Owl Post", href: "#owlpost-preview", icon: Mail },
+    { id: "owl-post", label: "Owl Post", href: "/owl-post", icon: Mail },
     { id: "common-room", label: "Common Room", href: "/common-room", icon: Gamepad2 },
   ];
 
@@ -77,6 +77,9 @@ export const Header: React.FC<HeaderProps> = ({ user: propUser }) => {
     }
     if (pathname === "/music") {
       return id === "music";
+    }
+    if (pathname === "/owl-post") {
+      return id === "owl-post";
     }
     return activeTab === id;
   };
