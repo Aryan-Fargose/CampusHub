@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { OwlPostSummary } from "@/types";
 import { ArrowRight, Feather } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -69,14 +70,14 @@ export const OwlPostCard: React.FC<OwlPostCardProps> = ({
 
       {/* Interactive Action Button */}
       <div className="mt-1">
-        <button
-          type="button"
+        <Link
+          href="/owl-post"
           className="group/btn w-full flex items-center justify-center gap-2 rounded-lg py-1.5 px-3 bg-[#051119] hover:bg-[#0c2637] border border-[#1b3a47] hover:border-[#48D1CC]/80 text-[11px] font-serif text-[#D6D9D4] hover:text-white transition-all duration-200 cursor-pointer shadow-sm hover:shadow-[0_0_12px_rgba(72,209,204,0.3)]"
         >
           <span className="text-[#48D1CC] text-xs transition-transform duration-200 group-hover/btn:rotate-12">🪶</span>
           <span>Read Now</span>
           <ArrowRight className="h-3 w-3 text-[#48D1CC] transition-transform duration-200 group-hover/btn:translate-x-1" />
-        </button>
+        </Link>
       </div>
     </div>
   );
